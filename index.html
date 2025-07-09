@@ -6,58 +6,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      background: #0d0d0d;
-      color: #f0f0f0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
+      background-color: #0f0f0f;
+      color: #ffffff;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
       padding: 20px;
-      min-height: 100vh;
+      text-align: center;
     }
 
     h1 {
-      margin-top: 20px;
       font-size: 24px;
-      text-align: center;
+      margin-bottom: 10px;
     }
 
     input, button {
       padding: 10px;
-      margin-top: 10px;
+      margin: 8px;
       font-size: 16px;
-      width: 100%;
-      max-width: 300px;
       border-radius: 8px;
       border: none;
+      width: 80%;
+      max-width: 300px;
     }
 
     button {
-      background-color: #4caf50;
+      background-color: #1e90ff;
       color: white;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #45a049;
+      background-color: #0b78e3;
     }
 
     #weatherResult {
-      margin-top: 20px;
-      padding: 15px;
       background-color: #1a1a1a;
+      padding: 15px;
       border-radius: 10px;
-      width: 100%;
+      margin-top: 20px;
       max-width: 320px;
-      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .emoji {
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
 
   <h1>🌍 World Weather</h1>
-  <input type="text" id="cityInput" placeholder="Enter a city (e.g. Jakarta)">
+  <input type="text" id="cityInput" placeholder="Enter city name (e.g. Jakarta)">
   <button onclick="getWeather()">Check Weather</button>
 
   <div id="weatherResult"></div>
@@ -65,7 +65,7 @@
   <script>
     async function getWeather() {
       const city = document.getElementById("cityInput").value.trim();
-      const apiKey = "106f40749c08137432283d3d58b11de7"; // Your API Key
+      const apiKey = "bc8550cfcec028111a5090f50d5555c9";
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
 
       if (!city) {
@@ -74,25 +74,30 @@
       }
 
       try {
-        const res = await fetch(url);
-        const data = await res.json();
+        const response = await fetch(url);
+        const data = await response.json();
 
         if (data.cod !== 200) {
-          alert("Weather data not found. Please check the city name.");
+          document.getElementById("weatherResult").innerHTML = `<p>❌ Weather data not found. Please check the city name.</p>`;
           return;
         }
 
+        const icon = data.weather[0].icon;
+        const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
         document.getElementById("weatherResult").innerHTML = `
-          <h3>${data.name}, ${data.sys.country}</h3>
-          <p>☁ ${data.weather[0].description}</p>
-          <p>🌡 Temperature: ${data.main.temp}°C</p>
+          <h2>${data.name}, ${data.sys.country}</h2>
+          <img src="${iconUrl}" alt="weather icon">
+          <p class="emoji">☁ ${data.weather[0].description}</p>
+          <p>🌡 Temp: ${data.main.temp}°C</p>
           <p>💧 Humidity: ${data.main.humidity}%</p>
-          <p>🌬 Wind Speed: ${data.wind.speed} m/s</p>
+          <p>🌬 Wind: ${data.wind.speed} m/s</p>
         `;
-      } catch (error) {
-        alert("Failed to fetch weather data.");
+      } catch (err) {
+        document.getElementById("weatherResult").innerHTML = `<p>⚠️ Failed to load weather data. Try again.</p>`;
       }
     }
   </script>
+
 </body>
 </html>
