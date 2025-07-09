@@ -1,61 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>World Weather Today</title>
+  <meta charset="UTF-8">
+  <title>World Weather - Farcaster Mini App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #0d0d0d;
+      color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      min-height: 100vh;
+    }
 
-  <!-- ✅ Meta tag Mini App Farcaster -->
-  <meta name="fc:frame" content="vNext" />
-  <meta name="fc:frame:image" content="https://placehold.co/600x400?text=Weather+App" />
-  <meta name="fc:frame:button:1" content="Open App" />
-  <meta name="fc:frame:post_url" content="https://your-vercel-url.vercel.app/" />
+    h1 {
+      margin-top: 20px;
+      font-size: 24px;
+      text-align: center;
+    }
 
-  <script src="https://cdn.tailwindcss.com"></script>
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #weatherResult {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #1a1a1a;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full bg-gray-800 p-6 rounded-2xl shadow-xl">
-    <h1 class="text-2xl font-bold mb-4 text-center">🌍 World Weather Today</h1>
-    
-    <input id="cityInput" type="text" placeholder="Enter city (e.g. Tokyo)" class="w-full p-3 rounded-lg text-black mb-4" />
-    
-    <button onclick="getWeather()" class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-lg font-semibold mb-4">
-      Get Weather
-    </button>
-    
-    <div id="weatherResult" class="text-center text-sm space-y-2 hidden">
-      <p id="location" class="text-xl font-semibold"></p>
-      <p id="temp"></p>
-      <p id="desc" class="italic"></p>
-      <p id="extra"></p>
-    </div>
-  </div>
+<body>
+
+  <h1>🌍 World Weather</h1>
+  <input type="text" id="cityInput" placeholder="Enter a city (e.g. Jakarta)">
+  <button onclick="getWeather()">Check Weather</button>
+
+  <div id="weatherResult"></div>
 
   <script>
     async function getWeather() {
-      const apiKey = "106f40749c08137432283d3d58b11de7"; // Dummy API key
-      const city = document.getElementById("cityInput").value;
-      const resultDiv = document.getElementById("weatherResult");
+      const city = document.getElementById("cityInput").value.trim();
+      const apiKey = "4e10192f547f96d86aaac26f370bcda1"; // API KEY VALID
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
 
-      if (!city) return alert("Please enter a city.");
-
-      const url = `https://openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      if (!city) {
+        alert("Please enter a city name.");
+        return;
+      }
 
       try {
         const res = await fetch(url);
         const data = await res.json();
 
-        if (data.cod !== 200) throw new Error(data.message);
+        if (data.cod !== 200) {
+          alert("Weather data not found. Please check the city name.");
+          return;
+        }
 
-        document.getElementById("location").textContent = `${data.name}, ${data.sys.country}`;
-        document.getElementById("temp").textContent = `🌡 Temp: ${data.main.temp}°C`;
-        document.getElementById("desc").textContent = `☁️ Condition: ${data.weather[0].description}`;
-        document.getElementById("extra").textContent = `💧 Humidity: ${data.main.humidity}% | 🌬 Wind: ${data.wind.speed} m/s`;
-
-        resultDiv.classList.remove("hidden");
-      } catch (err) {
-        alert("Weather data not found. Please check the city name.");
-        resultDiv.classList.add("hidden");
+        document.getElementById("weatherResult").innerHTML = `
+          <h3>${data.name}, ${data.sys.country}</h3>
+          <p>☁ ${data.weather[0].description}</p>
+          <p>🌡 Temperature: ${data.main.temp}°C</p>
+          <p>💧 Humidity: ${data.main.humidity}%</p>
+          <p>🌬 Wind Speed: ${data.wind.speed} m/s</p>
+        `;
+      } catch (error) {
+        alert("Failed to fetch weather data.");
       }
     }
   </script>
