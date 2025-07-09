@@ -1,63 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>World Weather - Farcaster Mini App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>World Weather 🌍</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       background-color: #0f0f0f;
       color: #ffffff;
-      font-family: 'Arial', sans-serif;
-      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
       padding: 20px;
-      text-align: center;
     }
 
     h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 28px;
     }
 
-    input, button {
+    input {
       padding: 10px;
-      margin: 8px;
+      width: 80%;
+      max-width: 300px;
       font-size: 16px;
       border-radius: 8px;
       border: none;
-      width: 80%;
-      max-width: 300px;
+      margin-bottom: 12px;
     }
 
     button {
+      padding: 10px 20px;
       background-color: #1e90ff;
       color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      margin-bottom: 20px;
     }
 
     button:hover {
-      background-color: #0b78e3;
+      background-color: #0078d7;
     }
 
     #weatherResult {
       background-color: #1a1a1a;
-      padding: 15px;
+      padding: 20px;
       border-radius: 10px;
-      margin-top: 20px;
       max-width: 320px;
-      margin-left: auto;
-      margin-right: auto;
+      text-align: center;
     }
 
-    .emoji {
-      font-size: 24px;
+    img {
+      width: 80px;
+      height: 80px;
+    }
+
+    .error {
+      color: red;
     }
   </style>
 </head>
 <body>
-
   <h1>🌍 World Weather</h1>
-  <input type="text" id="cityInput" placeholder="Enter city name (e.g. Jakarta)">
+  <input id="cityInput" placeholder="Enter city (e.g. Tokyo)" />
   <button onclick="getWeather()">Check Weather</button>
 
   <div id="weatherResult"></div>
@@ -66,19 +76,22 @@
     async function getWeather() {
       const city = document.getElementById("cityInput").value.trim();
       const apiKey = "bc8550cfcec028111a5090f50d5555c9";
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+      const proxyUrl = "https://api.allorigins.win/get?url=";
+      const targetUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+      const url = proxyUrl + encodeURIComponent(targetUrl);
 
       if (!city) {
-        alert("Please enter a city name.");
+        document.getElementById("weatherResult").innerHTML = "<p class='error'>❗ Please enter a city name.</p>";
         return;
       }
 
       try {
         const response = await fetch(url);
-        const data = await response.json();
+        const raw = await response.json();
+        const data = JSON.parse(raw.contents);
 
         if (data.cod !== 200) {
-          document.getElementById("weatherResult").innerHTML = `<p>❌ Weather data not found. Please check the city name.</p>`;
+          document.getElementById("weatherResult").innerHTML = "<p class='error'>❌ City not found. Try again.</p>";
           return;
         }
 
@@ -87,17 +100,16 @@
 
         document.getElementById("weatherResult").innerHTML = `
           <h2>${data.name}, ${data.sys.country}</h2>
-          <img src="${iconUrl}" alt="weather icon">
-          <p class="emoji">☁ ${data.weather[0].description}</p>
+          <img src="${iconUrl}" alt="weather icon" />
+          <p>${data.weather[0].description}</p>
           <p>🌡 Temp: ${data.main.temp}°C</p>
           <p>💧 Humidity: ${data.main.humidity}%</p>
           <p>🌬 Wind: ${data.wind.speed} m/s</p>
         `;
       } catch (err) {
-        document.getElementById("weatherResult").innerHTML = `<p>⚠️ Failed to load weather data. Try again.</p>`;
+        document.getElementById("weatherResult").innerHTML = "<p class='error'>⚠️ Failed to fetch data. Try again.</p>";
       }
     }
   </script>
-
 </body>
 </html>
