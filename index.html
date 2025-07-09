@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>World Weather Today</title>
+
+  <!-- ✅ Meta tag Mini App Farcaster -->
+  <meta name="fc:frame" content="vNext" />
+  <meta name="fc:frame:image" content="https://placehold.co/600x400?text=Weather+App" />
+  <meta name="fc:frame:button:1" content="Open App" />
+  <meta name="fc:frame:post_url" content="https://your-vercel-url.vercel.app/" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full bg-gray-800 p-6 rounded-2xl shadow-xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">🌍 World Weather Today</h1>
+    
+    <input id="cityInput" type="text" placeholder="Enter city (e.g. Tokyo)" class="w-full p-3 rounded-lg text-black mb-4" />
+    
+    <button onclick="getWeather()" class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-lg font-semibold mb-4">
+      Get Weather
+    </button>
+    
+    <div id="weatherResult" class="text-center text-sm space-y-2 hidden">
+      <p id="location" class="text-xl font-semibold"></p>
+      <p id="temp"></p>
+      <p id="desc" class="italic"></p>
+      <p id="extra"></p>
+    </div>
+  </div>
+
+  <script>
+    async function getWeather() {
+      const apiKey = "b6907d289e10d714a6e88b30761fae22"; // Dummy API key
+      const city = document.getElementById("cityInput").value;
+      const resultDiv = document.getElementById("weatherResult");
+
+      if (!city) return alert("Please enter a city.");
+
+      const url = `https://openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.cod !== 200) throw new Error(data.message);
+
+        document.getElementById("location").textContent = `${data.name}, ${data.sys.country}`;
+        document.getElementById("temp").textContent = `🌡 Temp: ${data.main.temp}°C`;
+        document.getElementById("desc").textContent = `☁️ Condition: ${data.weather[0].description}`;
+        document.getElementById("extra").textContent = `💧 Humidity: ${data.main.humidity}% | 🌬 Wind: ${data.wind.speed} m/s`;
+
+        resultDiv.classList.remove("hidden");
+      } catch (err) {
+        alert("Weather data not found. Please check the city name.");
+        resultDiv.classList.add("hidden");
+      }
+    }
+  </script>
+</body>
+</html>
